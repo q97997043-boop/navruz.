@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Navro'z Antigravity Portal — Renessans PsyTech</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{
+  --void:#020818;--neon-green:#00ff88;--neon-pink:#ff2d78;--neon-gold:#ffd700;
+  --neon-cyan:#00e5ff;--neon-violet:#bf5fff;--neon-orange:#ff7a00;
+  --glass-bg:rgba(10,30,80,0.45);--glass-border:rgba(0,229,255,0.18);--glass-shine:rgba(255,255,255,0.06);
+}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
+body{background:var(--void);color:#e8f4ff;font-family:'Exo 2',sans-serif;overflow-x:hidden;cursor:none;min-height:100vh;}
+#cur{position:fixed;width:22px;height:22px;border:2px solid var(--neon-cyan);border-radius:50%;pointer-events:none;z-index:9999;transition:transform .12s;mix-blend-mode:screen;}
+#cur-dot{position:fixed;width:5px;height:5px;background:var(--neon-pink);border-radius:50%;pointer-events:none;z-index:9999;}
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.petal{position:fixed;pointer-events:none;z-index:1;animation:petalFloat linear infinite;opacity:.7;}
+@keyframes petalFloat{0%{transform:translateY(110vh) rotate(0deg)}50%{transform:translateY(50vh) rotate(180deg) translateX(-30px)}100%{transform:translateY(-10vh) rotate(360deg);opacity:0}}
+.container{max-width:1200px;margin:0 auto;padding:0 24px;position:relative;z-index:2;}
+.glass{background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:20px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 8px 40px rgba(0,0,0,.5),inset 0 1px 0 var(--glass-shine);position:relative;overflow:hidden;}
+.glass::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,229,255,.04),transparent 60%);pointer-events:none;}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 10px var(--neon-green)}50%{box-shadow:0 0 30px var(--neon-green),0 0 60px var(--neon-green)}}
+@keyframes coinPop{0%{transform:scale(0) rotate(0)}60%{transform:scale(1.3) rotate(360deg)}100%{transform:scale(1) rotate(360deg)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes ripple{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.8);opacity:0}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes steamRise{0%{opacity:0;transform:translateX(-50%) translateY(0)}50%{opacity:.7}100%{opacity:0;transform:translateX(-50%) translateY(-60px)}}
+@keyframes twinkle{0%,100%{opacity:.1}50%{opacity:.8}}
+@keyframes kiteFloat{0%{transform:translateX(-120px)}100%{transform:translateX(110vw)}}
+@keyframes popIn{from{transform:translate(-50%,-50%) scale(.8);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+@keyframes correctPop{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
+@keyframes glowPulse{0%,100%{filter:drop-shadow(0 0 8px rgba(0,229,255,.4))}50%{filter:drop-shadow(0 0 22px rgba(0,229,255,.9))}}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 30px;background:rgba(2,8,24,.88);border-bottom:1px solid rgba(0,229,255,.12);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{font-family:'Orbitron';font-size:15px;font-weight:700;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:.1em;}
+.nav-links{display:flex;gap:6px;}
+.nav-links a{padding:6px 14px;border-radius:30px;font-size:12px;color:rgba(255,255,255,.6);text-decoration:none;border:1px solid transparent;transition:all .3s;font-family:'Exo 2';}
+.nav-links a:hover,.nav-links a.active{color:var(--neon-cyan);border-color:rgba(0,229,255,.3);background:rgba(0,229,255,.07);}
+.coin-display{display:flex;align-items:center;gap:8px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);border-radius:30px;padding:6px 16px;font-family:'Orbitron';font-size:13px;color:var(--neon-gold);}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 20px 60px;position:relative;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(0,229,255,.3);border-radius:30px;padding:6px 18px;font-size:12px;color:var(--neon-cyan);margin-bottom:28px;animation:floatY 3s ease-in-out infinite;}
+.hero-title{font-family:'Orbitron';font-size:clamp(32px,7vw,80px);font-weight:900;line-height:1.1;background:linear-gradient(135deg,#fff 0%,var(--neon-cyan) 40%,var(--neon-green) 70%,var(--neon-gold) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:14px;animation:fadeUp .8s ease both;}
+.hero-sub{font-size:clamp(14px,2.5vw,20px);color:rgba(255,255,255,.55);font-weight:300;margin-bottom:50px;animation:fadeUp .8s .2s ease both;}
+.cauldron-wrap{position:relative;width:220px;height:220px;margin:0 auto 50px;animation:floatY 4s ease-in-out infinite;}
+.cauldron-svg{filter:drop-shadow(0 0 30px rgba(255,215,0,.5));}
+.cauldron-glow{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);width:180px;height:30px;background:radial-gradient(ellipse,rgba(255,215,0,.4),transparent);border-radius:50%;filter:blur(10px);animation:pulse 2s ease-in-out infinite;}
+.steam{position:absolute;top:-20px;left:50%;font-size:28px;animation:steamRise 2s ease-in-out infinite;}
+.sabza-sphere{position:absolute;width:70px;height:70px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.2),rgba(0,255,136,.05));border:1px solid rgba(0,255,136,.4);backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 0 20px rgba(0,255,136,.2),inset 0 1px 0 rgba(255,255,255,.15);}
+.s1{top:-30px;left:-80px;animation:floatY 3s .5s ease-in-out infinite;}
+.s2{top:20px;right:-90px;animation:floatY 3.5s 1s ease-in-out infinite;}
+.s3{bottom:-20px;left:-60px;animation:floatY 2.8s .2s ease-in-out infinite;}
+.kite-char{position:fixed;bottom:15%;font-size:32px;animation:kiteFloat linear infinite;z-index:1;}
+.section-label{font-family:'Orbitron';font-size:11px;letter-spacing:.4em;text-transform:uppercase;color:var(--neon-cyan);opacity:.7;margin-bottom:8px;}
+.section-title{font-family:'Orbitron';font-size:clamp(22px,4vw,36px);font-weight:700;background:linear-gradient(90deg,#fff,var(--neon-cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px;}
+.section-desc{font-size:14px;color:rgba(255,255,255,.5);font-weight:300;max-width:600px;margin:0 auto 50px;line-height:1.8;}
+section{padding:90px 0;position:relative;z-index:2;}
+section+section{border-top:1px solid rgba(0,229,255,.06);}
+.neon-input{flex:1;min-width:200px;background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.25);border-radius:12px;padding:14px 18px;color:#e8f4ff;font-family:'Exo 2';font-size:15px;outline:none;transition:border-color .3s,box-shadow .3s;}
+.neon-input:focus{border-color:var(--neon-cyan);box-shadow:0 0 20px rgba(0,229,255,.2);}
+.neon-input::placeholder{color:rgba(255,255,255,.25);}
+.btn-primary{padding:14px 28px;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-green));border:none;border-radius:12px;color:#020818;font-family:'Orbitron';font-size:13px;font-weight:700;cursor:pointer;transition:transform .2s,box-shadow .3s;white-space:nowrap;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,229,255,.4);}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.story-card{padding:40px;max-width:800px;margin:0 auto;}
+.story-input-row{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;}
+.story-output{background:rgba(0,0,0,.3);border:1px solid rgba(0,255,136,.15);border-radius:14px;padding:24px;min-height:180px;font-size:15px;line-height:1.9;color:rgba(255,255,255,.85);font-style:italic;display:none;}
+.story-output.show{display:block;animation:fadeUp .5s ease;}
+.typing-cursor{display:inline-block;width:2px;height:18px;background:var(--neon-green);vertical-align:middle;animation:blink .7s infinite;}
+.story-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.2);border-radius:20px;padding:2px 10px;font-size:11px;color:var(--neon-green);}
+.campus-map-bg{width:100%;border-radius:20px;border:1px solid rgba(0,229,255,.2);background:linear-gradient(135deg,#040d22,#081530 50%,#060f26);position:relative;padding-bottom:56%;overflow:hidden;}
+.map-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,229,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.04) 1px,transparent 1px);background-size:40px 40px;}
+.map-label{position:absolute;top:14px;left:20px;font-family:'Orbitron';font-size:11px;color:rgba(0,229,255,.5);letter-spacing:.2em;}
+.hotspot{position:absolute;width:44px;height:44px;transform:translate(-50%,-50%);cursor:pointer;z-index:5;}
+.hotspot-inner{width:100%;height:100%;border-radius:50%;background:rgba(0,229,255,.15);border:2px solid var(--neon-cyan);display:flex;align-items:center;justify-content:center;font-family:'Orbitron';font-size:13px;font-weight:700;color:var(--neon-cyan);transition:all .3s;position:relative;}
+.hotspot-inner::before{content:'';position:absolute;inset:-6px;border-radius:50%;border:1px solid rgba(0,229,255,.3);animation:ripple 2s ease-out infinite;}
+.hotspot:hover .hotspot-inner{background:rgba(0,229,255,.3);box-shadow:0 0 25px rgba(0,229,255,.6);transform:scale(1.2);}
+.hotspot.solved .hotspot-inner{background:rgba(0,255,136,.2);border-color:var(--neon-green);color:var(--neon-green);}
+.hotspot-label{position:absolute;top:110%;left:50%;transform:translateX(-50%);font-size:10px;color:rgba(255,255,255,.5);white-space:nowrap;text-align:center;max-width:90px;line-height:1.3;}
+.holo-popup{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.8);width:min(90vw,500px);z-index:500;padding:36px;background:rgba(5,15,40,.95);border:1px solid var(--neon-cyan);border-radius:24px;backdrop-filter:blur(30px);box-shadow:0 0 60px rgba(0,229,255,.3);opacity:0;}
+.holo-popup.open{display:block;animation:popIn .3s ease forwards;}
+.popup-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:499;backdrop-filter:blur(4px);}
+.popup-overlay.open{display:block;}
+.popup-num{font-family:'Orbitron';font-size:11px;color:var(--neon-cyan);opacity:.5;letter-spacing:.3em;margin-bottom:8px;}
+.popup-q{font-family:'Orbitron';font-size:17px;font-weight:700;color:#fff;margin-bottom:16px;line-height:1.4;}
+.popup-a{font-size:15px;color:rgba(255,255,255,.75);line-height:1.8;font-weight:300;}
+.popup-coin{display:flex;align-items:center;gap:10px;margin-top:20px;padding:12px 18px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);border-radius:12px;font-family:'Orbitron';font-size:13px;color:var(--neon-gold);}
+.popup-close,.gm-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:rgba(255,255,255,.5);width:32px;height:32px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.popup-close:hover,.gm-close:hover{background:rgba(255,45,120,.2);border-color:var(--neon-pink);color:var(--neon-pink);}
+.coin-anim{width:40px;height:40px;background:linear-gradient(135deg,#ffd700,#ff8c00);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;animation:coinPop .5s ease;box-shadow:0 0 20px rgba(255,215,0,.5);}
+.tree-section{text-align:center;}
+#treeCanvas{display:block;margin:0 auto;max-width:100%;border-radius:16px;}
+.wish-form{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:30px;max-width:500px;margin-left:auto;margin-right:auto;}
+.wish-count{margin-top:16px;font-family:'Orbitron';font-size:12px;color:rgba(0,255,136,.6);letter-spacing:.2em;}
+.wish-tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:20px;max-width:700px;margin-left:auto;margin-right:auto;}
+.wish-tag{background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.2);border-radius:20px;padding:6px 16px;font-size:13px;color:var(--neon-green);animation:fadeUp .4s ease;}
+
+/* GAMES */
+.games-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1100px;margin:0 auto;}
+.game-card{padding:28px;text-align:center;cursor:pointer;transition:all .3s;border-radius:20px;}
+.game-card:hover{transform:translateY(-8px);}
+.game-icon-big{font-size:52px;margin-bottom:16px;display:block;animation:floatY 3s ease-in-out infinite;}
+.game-title{font-family:'Orbitron';font-size:16px;font-weight:700;color:#fff;margin-bottom:6px;}
+.game-desc{font-size:13px;color:rgba(255,255,255,.45);line-height:1.6;margin-bottom:14px;}
+.game-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border-radius:20px;font-size:12px;font-weight:700;font-family:'Orbitron';border:none;cursor:pointer;transition:all .2s;}
+.gb-green{background:rgba(0,255,136,.15);border:1px solid rgba(0,255,136,.3);color:var(--neon-green);}
+.gb-pink{background:rgba(255,45,120,.15);border:1px solid rgba(255,45,120,.3);color:var(--neon-pink);}
+.gb-gold{background:rgba(255,215,0,.15);border:1px solid rgba(255,215,0,.3);color:var(--neon-gold);}
+.gb-green:hover{background:rgba(0,255,136,.25);}
+.gb-pink:hover{background:rgba(255,45,120,.25);}
+.gb-gold:hover{background:rgba(255,215,0,.25);}
+
+/* GAME MODALS */
+.game-modal{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.85);width:min(95vw,640px);max-height:90vh;overflow-y:auto;z-index:600;padding:36px;background:rgba(4,12,32,.97);border-radius:28px;border:1px solid var(--neon-cyan);box-shadow:0 0 80px rgba(0,229,255,.25);opacity:0;}
+.game-modal.open{display:block;animation:popIn .3s ease forwards;}
+.gm-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;position:relative;}
+.gm-title{font-family:'Orbitron';font-size:18px;font-weight:700;color:#fff;}
+.gm-score{font-family:'Orbitron';font-size:14px;color:var(--neon-gold);}
+.riddle-box{background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.15);border-radius:16px;padding:28px;margin-bottom:20px;text-align:center;}
+.riddle-q{font-size:18px;font-weight:600;color:#fff;line-height:1.6;margin-bottom:6px;}
+.riddle-hint{font-size:12px;color:rgba(255,255,255,.35);margin-bottom:20px;}
+.riddle-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.riddle-opt{padding:12px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;cursor:pointer;font-size:14px;color:rgba(255,255,255,.8);transition:all .2s;text-align:left;}
+.riddle-opt:hover{border-color:var(--neon-cyan);background:rgba(0,229,255,.08);}
+.riddle-opt.correct{border-color:var(--neon-green)!important;background:rgba(0,255,136,.12)!important;color:var(--neon-green)!important;animation:correctPop .3s ease;}
+.riddle-opt.wrong{border-color:var(--neon-pink)!important;background:rgba(255,45,120,.1)!important;color:var(--neon-pink)!important;animation:shake .3s ease;}
+.riddle-opt.disabled{pointer-events:none;}
+.riddle-progress{font-family:'Orbitron';font-size:11px;color:rgba(255,255,255,.35);text-align:right;margin-bottom:12px;}
+.sozlama-word{font-family:'Orbitron';font-size:clamp(28px,6vw,52px);font-weight:900;letter-spacing:.2em;color:var(--neon-gold);text-align:center;margin:20px 0;text-shadow:0 0 20px rgba(255,215,0,.4);}
+.sozlama-result{text-align:center;font-size:16px;font-weight:600;margin-top:14px;min-height:26px;}
+.lives-row{display:flex;justify-content:center;gap:6px;margin-bottom:16px;font-size:20px;}
+.mem-stats{display:flex;justify-content:center;gap:24px;margin-bottom:20px;}
+.mem-stat{text-align:center;}
+.mem-stat-num{font-family:'Orbitron';font-size:22px;font-weight:700;color:var(--neon-cyan);}
+.mem-stat-label{font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.1em;}
+.memory-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:400px;margin:0 auto;}
+.mem-card{aspect-ratio:1;background:rgba(0,229,255,.08);border:2px solid rgba(0,229,255,.2);border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:28px;transition:all .3s;}
+.mem-card.flipped,.mem-card.matched{background:rgba(0,255,136,.08);border-color:rgba(0,255,136,.3);}
+.mem-card.matched{pointer-events:none;opacity:.7;}
+.mem-card-inner{font-size:28px;transition:filter .3s,transform .3s;}
+.mem-card:not(.flipped):not(.matched) .mem-card-inner{filter:blur(10px) opacity(0);transform:rotateY(90deg);}
+footer{text-align:center;padding:60px 20px;border-top:1px solid rgba(0,229,255,.08);position:relative;z-index:2;}
+.footer-logo{font-family:'Orbitron';font-size:20px;font-weight:700;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px;}
+.footer-sub{font-size:12px;color:rgba(255,255,255,.25);line-height:1.8;}
+.progress-bar-wrap{position:fixed;top:0;left:0;right:0;height:2px;z-index:200;}
+.progress-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-green),var(--neon-gold));transition:width .1s;}
+.star{position:fixed;border-radius:50%;background:#fff;animation:twinkle linear infinite;pointer-events:none;z-index:0;}
+@media(max-width:900px){.games-grid{grid-template-columns:1fr;}.nav-links{display:none;}.riddle-opts{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress"></div></div>
+<div id="cur"></div><div id="cur-dot"></div>
+<canvas id="bg-canvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">⚡ Renessans PsyTech</div>
+  <div class="nav-links">
+    <a href="#hero" class="active">Bosh Sahifa</a>
+    <a href="#story">Hikoya</a>
+    <a href="#quest">Quest Map</a>
+    <a href="#tree">Niyatlar</a>
+    <a href="#games">O'yinlar</a>
+  </div>
+  <div class="coin-display"><i class="fa fa-coins"></i> <span id="total-coins">0</span> tanga</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="container">
+    <div class="hero-badge"><span>🌸</span><span>NAVRO'Z 2026 · RENESSANS PSYTECH</span><span>🚀</span></div>
+    <div class="cauldron-wrap">
+      <div class="sabza-sphere s1">🌱</div>
+      <div class="sabza-sphere s2">🌿</div>
+      <div class="sabza-sphere s3">🌾</div>
+      <div class="steam" style="left:42%">💨</div>
+      <div class="steam" style="left:55%;animation-delay:.7s">💨</div>
+      <svg class="cauldron-svg" width="220" height="220" viewBox="0 0 220 220" fill="none">
+        <ellipse cx="110" cy="145" rx="78" ry="35" fill="url(#cg1)" opacity=".9"/>
+        <path d="M35 100 Q30 145 32 155 Q50 185 110 188 Q170 185 188 155 Q190 145 185 100 Z" fill="url(#cb)"/>
+        <path d="M35 100 Q40 78 110 72 Q180 78 185 100 Z" fill="url(#ct)"/>
+        <ellipse cx="110" cy="100" rx="75" ry="28" fill="none" stroke="url(#gg)" stroke-width="4"/>
+        <ellipse cx="110" cy="100" rx="68" ry="22" fill="url(#sg)" opacity=".8"/>
+        <rect x="55" y="182" width="12" height="22" rx="4" fill="#8B6914"/>
+        <rect x="100" y="185" width="12" height="20" rx="4" fill="#8B6914"/>
+        <rect x="150" y="182" width="12" height="22" rx="4" fill="#8B6914"/>
+        <path d="M30 115 Q15 115 14 95 Q13 75 30 75" fill="none" stroke="url(#gg)" stroke-width="5" stroke-linecap="round"/>
+        <path d="M190 115 Q205 115 206 95 Q207 75 190 75" fill="none" stroke="url(#gg)" stroke-width="5" stroke-linecap="round"/>
+        <ellipse cx="80" cy="88" rx="20" ry="8" fill="rgba(255,255,255,.15)" transform="rotate(-20 80 88)"/>
+        <defs>
+          <linearGradient id="cb" x1="35" y1="100" x2="185" y2="188" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#c8922a"/><stop offset="50%" stop-color="#8B6914"/><stop offset="100%" stop-color="#5a4010"/></linearGradient>
+          <linearGradient id="ct" x1="35" y1="100" x2="185" y2="100" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#e8a830"/><stop offset="100%" stop-color="#c8922a"/></linearGradient>
+          <linearGradient id="cg1" gradientUnits="objectBoundingBox" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8B6914" stop-opacity=".6"/><stop offset="100%" stop-color="#5a4010" stop-opacity=".9"/></linearGradient>
+          <radialGradient id="sg" cx="50%" cy="50%"><stop offset="0%" stop-color="#c8ff80" stop-opacity=".9"/><stop offset="50%" stop-color="#60dd40" stop-opacity=".7"/><stop offset="100%" stop-color="#1a8020" stop-opacity=".5"/></radialGradient>
+          <linearGradient id="gg" gradientUnits="objectBoundingBox" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffd700"/><stop offset="100%" stop-color="#ff8c00"/></linearGradient>
+        </defs>
+      </svg>
+      <div class="cauldron-glow"></div>
+    </div>
+    <h1 class="hero-title">NAVRO'Z<br/>ANTIGRAVITY<br/>PORTAL</h1>
+    <p class="hero-sub">Renessans PsyTech · 2026-yil · Kelajak Bahori</p>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+      <a href="#games" class="btn-primary" style="text-decoration:none;background:linear-gradient(135deg,var(--neon-violet),var(--neon-pink));display:inline-flex;align-items:center;gap:8px;"><i class="fa fa-gamepad"></i> O'yinlar</a>
+      <a href="#quest" class="btn-primary" style="text-decoration:none;background:linear-gradient(135deg,var(--neon-gold),var(--neon-orange));color:#020818;display:inline-flex;align-items:center;gap:8px;"><i class="fa fa-map"></i> Quest Map</a>
+    </div>
+  </div>
+</section>
+
+<!-- AI STORY -->
+<section id="story">
+  <div class="container" style="text-align:center;">
+    <p class="section-label">Modul 01 · Sun'iy Idrok</p>
+    <h2 class="section-title">AI Navro'z Hikoya Generatori</h2>
+    <p class="section-desc">Ismingizni kiriting va 2026-yil Renessans PsyTech kampusidagi sarguzashtingizni o'qing.</p>
+    <div class="glass story-card">
+      <div class="story-input-row">
+        <input class="neon-input" id="userName" placeholder="Ismingizni kiriting..." maxlength="40"/>
+        <button class="btn-primary" id="genBtn" onclick="generateStory()"><i class="fa fa-satellite"></i> Hikoya Yaratish</button>
+      </div>
+      <div class="story-output" id="storyOut"></div>
+    </div>
+  </div>
+</section>
+
+<!-- QUEST MAP -->
+<section id="quest">
+  <div class="container" style="text-align:center;">
+    <p class="section-label">Modul 02 · Interaktiv Xarita</p>
+    <h2 class="section-title">Renessans PsyTech Quest Map</h2>
+    <p class="section-desc">10 ta yorug' nuqtani bosing, javoblarini oling va tangalar yig'ing!</p>
+    <div style="font-size:13px;color:rgba(255,255,255,.4);margin-bottom:30px;">
+      <span id="solved-count">0</span>/10 · <span style="color:var(--neon-gold);"><i class="fa fa-coins"></i> <span id="quest-coins">0</span> tanga</span>
+    </div>
+    <div class="glass" style="padding:4px;max-width:900px;margin:0 auto;">
+      <div class="campus-map-bg" id="campusMap">
+        <div class="map-grid"></div>
+        <div class="map-label">🏛 RENESSANS PSYTECH CAMPUS</div>
+        <div id="mapStars"></div>
+        <div id="hotspots"></div>
+        <div style="position:absolute;bottom:5%;left:5%;right:5%;height:25%;display:flex;gap:2%;align-items:flex-end;pointer-events:none;opacity:.3;">
+          <div style="flex:1.2;background:linear-gradient(to top,rgba(0,229,255,.2),transparent);border-radius:4px 4px 0 0;height:80%"></div>
+          <div style="flex:1;background:linear-gradient(to top,rgba(0,255,136,.2),transparent);border-radius:4px 4px 0 0;height:60%"></div>
+          <div style="flex:1.5;background:linear-gradient(to top,rgba(255,215,0,.2),transparent);border-radius:4px 4px 0 0;height:100%"></div>
+          <div style="flex:.8;background:linear-gradient(to top,rgba(191,95,255,.2),transparent);border-radius:4px 4px 0 0;height:50%"></div>
+          <div style="flex:1.1;background:linear-gradient(to top,rgba(0,229,255,.2),transparent);border-radius:4px 4px 0 0;height:70%"></div>
+          <div style="flex:1.3;background:linear-gradient(to top,rgba(255,45,120,.2),transparent);border-radius:4px 4px 0 0;height:85%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WISH TREE -->
+<section id="tree">
+  <div class="container tree-section">
+    <p class="section-label">Modul 03 · Raqamli Daraxt</p>
+    <h2 class="section-title">Niyatlar Daraxti</h2>
+    <p class="section-desc">Niyatingizni yozing — daraxtga yangi gul qo'shiladi!</p>
+    <canvas id="treeCanvas" width="520" height="400"></canvas>
+    <div class="wish-form">
+      <input class="neon-input" id="wishInput" placeholder="🌸 Niyatingizni yozing..." maxlength="60" style="max-width:340px;"/>
+      <button class="btn-primary" onclick="addWish()" style="background:linear-gradient(135deg,#00ff88,#00c868);"><i class="fa fa-leaf"></i> Qo'shish</button>
+    </div>
+    <div class="wish-count" id="wishCount">0 ta niyat qo'shildi</div>
+    <div class="wish-tags" id="wishTags"></div>
+  </div>
+</section>
+
+<!-- GAMES -->
+<section id="games">
+  <div class="container" style="text-align:center;">
+    <p class="section-label">Modul 05 · O'zbek O'yinlari</p>
+    <h2 class="section-title">Navro'z O'yinlar Maydoni</h2>
+    <p class="section-desc">3 ta qiziqarli o'zbek o'yinini o'ynang va tangalar yig'ing!</p>
+    <div class="games-grid">
+      <div class="glass game-card" onclick="openGame('riddle')">
+        <span class="game-icon-big">🧩</span>
+        <div class="game-title">Navro'z Topishmoqlari</div>
+        <div class="game-desc">O'zbek bahor topishmoqlarini toping! Har to'g'ri javob uchun tanga.</div>
+        <button class="game-btn gb-green"><i class="fa fa-play"></i> O'ynash</button>
+      </div>
+      <div class="glass game-card" onclick="openGame('sozlama')" style="animation-delay:.4s">
+        <span class="game-icon-big" style="animation-delay:.5s">🔤</span>
+        <div class="game-title">So'z Aralash</div>
+        <div class="game-desc">Aralashib ketgan Navro'z so'zlarini toping! 30 soniya vaqt.</div>
+        <button class="game-btn gb-pink"><i class="fa fa-play"></i> O'ynash</button>
+      </div>
+      <div class="glass game-card" onclick="openGame('memory')" style="animation-delay:.8s">
+        <span class="game-icon-big" style="animation-delay:1s">🌸</span>
+        <div class="game-title">Navro'z Memory</div>
+        <div class="game-desc">Juft kartochkalarni toping! Xotirangizni sinang.</div>
+        <button class="game-btn gb-gold"><i class="fa fa-play"></i> O'ynash</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">⚡ Renessans PsyTech</div>
+  <p class="footer-sub">Navro'z Antigravity Portal · Renessans PsyTech · 🌸 Navro'z Muborak! 🌸</p>
+</footer>
+
+<!-- POPUPS -->
+<div class="popup-overlay" id="overlay" onclick="closePopup()"></div>
+<div class="holo-popup" id="holoPopup">
+  <button class="popup-close" onclick="closePopup()"><i class="fa fa-xmark"></i></button>
+  <div class="popup-num" id="popNum"></div>
+  <div class="popup-q" id="popQ"></div>
+  <div class="popup-a" id="popA"></div>
+  <div class="popup-coin" id="popCoin" style="display:none;"><div class="coin-anim">🏅</div><span>+1 Navro'z Tanga!</span></div>
+</div>
+<div class="popup-overlay" id="gameOverlay" onclick="closeGame()"></div>
+<div class="game-modal" id="gameModal">
+  <div class="gm-header">
+    <div class="gm-title" id="gmTitle">O'yin</div>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div style="font-family:'Orbitron';font-size:14px;color:var(--neon-gold);"><i class="fa fa-coins"></i> <span id="gmScore">0</span></div>
+      <button class="gm-close" onclick="closeGame()"><i class="fa fa-xmark"></i></button>
+    </div>
+  </div>
+  <div id="gmBody"></div>
+</div>
+
+<script>
+// ── CURSOR ──
+const cur=document.getElementById('cur'),cdot=document.getElementById('cur-dot');
+let mx=0,my=0,cx=0,cy=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+(function a(){cx+=(mx-cx)*.14;cy+=(my-cy)*.14;cur.style.left=(cx-11)+'px';cur.style.top=(cy-11)+'px';cdot.style.left=(mx-2.5)+'px';cdot.style.top=(my-2.5)+'px';requestAnimationFrame(a);})();
+document.querySelectorAll('a,button,.hotspot,.game-card,.mem-card,.riddle-opt,.gm-close,.popup-close').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.style.transform='scale(1.8)';cur.style.background='rgba(0,229,255,.15)';});
+  el.addEventListener('mouseleave',()=>{cur.style.transform='scale(1)';cur.style.background='';});
+});
+window.addEventListener('scroll',()=>{const p=(window.scrollY/(document.body.scrollHeight-window.innerHeight))*100;document.getElementById('progress').style.width=p+'%';document.querySelectorAll('.nav-links a').forEach(a=>{const s=document.querySelector(a.getAttribute('href'));if(!s)return;const r=s.getBoundingClientRect();a.classList.toggle('active',r.top<=80&&r.bottom>80);});});
+
+// ── STARS ──
+for(let i=0;i<120;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2+.5;s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${2+Math.random()*5}s;animation-delay:-${Math.random()*5}s;`;document.body.appendChild(s);}
+
+// ── BG PARTICLES ──
+const bgc=document.getElementById('bg-canvas'),bgx=bgc.getContext('2d');
+function rsz(){bgc.width=innerWidth;bgc.height=innerHeight;}rsz();window.addEventListener('resize',rsz);
+const COLS=['#00e5ff','#00ff88','#ffd700','#ff2d78','#bf5fff'];
+const pts=Array.from({length:90},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vy:-(0.3+Math.random()*.8),vx:(Math.random()-.5)*.4,r:Math.random()*2.5+.5,c:COLS[~~(Math.random()*5)],a:Math.random()*.6+.2}));
+(function dp(){bgx.clearRect(0,0,bgc.width,bgc.height);pts.forEach(p=>{bgx.beginPath();bgx.arc(p.x,p.y,p.r,0,Math.PI*2);bgx.fillStyle=p.c+(~~(p.a*255)).toString(16).padStart(2,'0');bgx.fill();p.x+=p.vx;p.y+=p.vy;if(p.y<-10){p.y=bgc.height+10;p.x=Math.random()*bgc.width;}if(p.x<-10)p.x=bgc.width+10;if(p.x>bgc.width+10)p.x=-10;});requestAnimationFrame(dp);})();
+
+// ── PETALS ──
+['🌸','🌺','🌸','🌼','🌷','🌸','🌸'].forEach(e=>{for(let j=0;j<3;j++){const p=document.createElement('div');p.className='petal';p.textContent=e;p.style.cssText=`left:${Math.random()*100}%;font-size:${14+Math.random()*12}px;animation-duration:${10+Math.random()*12}s;animation-delay:-${Math.random()*12}s;`;document.body.appendChild(p);}});
+['🧑‍🎓🪁','👩‍🎓🪁','🧑‍🚀🪁'].forEach((k,i)=>{const el=document.createElement('div');el.className='kite-char';el.textContent=k;el.style.cssText=`bottom:${10+i*5}%;animation-duration:${18+i*6}s;animation-delay:-${i*5}s;font-size:${22+i*4}px;`;document.body.appendChild(el);});
+
+// ── COINS ──
+let coinCount=0;
+function addCoins(n){coinCount+=n;document.getElementById('total-coins').textContent=coinCount;}
+
+// ── STORY ──
+const ST=[(n)=>`2026-yil, 21-mart. ${n} Renessans PsyTech kampusiga yetib keldi. Finlandiya laboratoriyasining (2023) holografik logotipi charaqlab turardi. 🇫🇮 "Bugun Navro'z!" — dedi raqamli yordamchi Sabza. Prezident stipendiyasi va Karimov stipendiyasi g'oliblari kutib turishdi. 25+ to'garak maydonidan o'tib, Zakovat musobaqasiga (oxirgi chorak) yo'l oldi. Grinvich (fevral) va Istanbul texnik universiteti delegatsiyalari kampusda edilar. Dr. Akmaljonov va Dr. Alimov sumalak kauldronini ko'tarib, osmonga uchirdi! 🌿✨`,(n)=>`Navro'z kuni ${n} Renessans PsyTech'ning uch kampusida — Asosiy, IT va Xalqaro — aylanib chiqdi. Finlandiya laboratoriyasi (2023) neon nurda porlardi. 25+ to'garakdan Zakovat jamoasi bilan uchrashdi. Sport maydonida futbol, shaxmat va tennis bir vaqtda! Prezident stipendiyasi sovrindorlari paraplaningda uchib o'tdi. Dr. Alimov: "${n}, siz kelajaksiz!" 🚀🌸`];
+function generateStory(){const n=document.getElementById('userName').value.trim()||'Talaba';const btn=document.getElementById('genBtn'),out=document.getElementById('storyOut');btn.disabled=true;btn.innerHTML='<i class="fa fa-spinner fa-spin"></i> Generatsiya...';out.style.display='none';setTimeout(()=>{const story=ST[~~(Math.random()*2)](n);out.style.display='block';out.classList.add('show');out.innerHTML='<span class="story-tag"><i class="fa fa-robot"></i> AI Generated</span><br/><br/>';let i=0;const c=document.createElement('span');c.className='typing-cursor';out.appendChild(c);const iv=setInterval(()=>{if(i<story.length){c.insertAdjacentText('beforebegin',story[i]);i++;}else{clearInterval(iv);c.remove();btn.disabled=false;btn.innerHTML='<i class="fa fa-satellite"></i> Qayta Yaratish';addCoins(2);}},18);},800);}
+document.getElementById('userName').addEventListener('keydown',e=>{if(e.key==='Enter')generateStory();});
+
+// ── QUEST ──
+const quests=[
+  {label:'🇹🇷 ODTÜ',q:'Orta Doğu Texnik universiteti bilan uchrashuv qachon bo\'ldi?',a:'Orta Doğu Texnik universiteti (ODTÜ) vakillari bilan hamkorlik uchrashuvi 2025-yil 16-aprelda bo\'lib o\'tdi.',x:18,y:25},
+  {label:"To'garaklar",q:"Universitetda nechta to'garak mavjud?",a:"Renessans Universitetida 30 ga yaqin turli yo'nalishli to'garaklar ishlaydi: robototexnika, she'riyat, sport, san'at, til o'rganish va ilmiy tadqiqot to'garaklari.",x:38,y:40},
+  {label:'Stipendiya',q:"Qanday davlat stipendiyalari mavjud?",a:"O'zbekiston Respublikasi Prezidentining davlat stipendiyasi, Navoiy nomli davlat stipendiyasi, Islom Karimov nomli davlat stipendiyasi, Pahlavon Mahmud nomli davlat stipendiyasi.",x:60,y:22},
+  {label:'Grinvich',q:"Grinvich universiteti tomonidan qachon uchrashuv tashkil etildi?",a:"Grinvich universiteti tomonidan uchrashuv 2026-yil 4-martda tashkil etildi.",x:80,y:35},
+  {label:'🇹🇷 Turkiya',q:"Qaysi Turkiya universitetlari bilan hamkorlik bor?",a:"🇹🇷 Istanbul Texnik universiteti, 🇹🇷 Boğaziçi universiteti, 🇹🇷 Istanbul universiteti, 🇹🇷 Ankara universiteti, 🇹🇷 Ankara Hacı Bayram Veli universiteti, 🇹🇷 Bandırma Onyedi Eylül universiteti, 🇹🇷 Balıkesir universiteti.",x:22,y:60},
+  {label:'Sport',q:"Universitetda qanday sport turlari rivojlangan?",a:"Renessans Universitetida judo, kurash, 3 belbo'gli kurash, voleybol, futbol, taykvando, boks va stol tennis sport turlari rivojlangan.",x:65,y:55},
+  {label:'Zakovat',q:"Zakovat o'yinining so'nggi turlari qachon bo'ldi?",a:"Zakovat intellektual o'yinining 4-turi 2026-yil 30-yanvarda, 5-turi esa 2026-yil 22-fevralda bo'lib o'tdi.",x:42,y:72},
+  {label:'Kampuslar',q:"Universitetning kampuslari qayerda joylashgan?",a:"Renessans Universitetida 3 ta kampus mavjud: Shayxontohur kampusi, Beruniy kampusi va Yunusobod kampusi.",x:78,y:65},
+  {label:'Xalq. Prorektor',q:"Universitetimizda xalqaro hamkorlik bo'yicha prorektor kim?",a:"Renessans Universitetida xalqaro hamkorlik bo'yicha prorektor — Rozimov Bekzod Baxtiyorivich.",x:30,y:82},
+  {label:'Ilmiy Prorektor',q:"Ilmiy ishlar va innovatsiyalar bo'yicha prorektor kim?",a:"Renessans Universitetida ilmiy ishlar va innovatsiyalar bo'yicha prorektor — Umirzakov Akmaljon Axataliyev.",x:58,y:85},
+];
+let solvedSet=new Set(),questCoins=0;
+function buildMap(){const map=document.getElementById('hotspots');quests.forEach((q,i)=>{const d=document.createElement('div');d.className='hotspot';d.id='hs-'+i;d.style.left=q.x+'%';d.style.top=q.y+'%';d.innerHTML=`<div class="hotspot-inner">${i+1}</div><div class="hotspot-label">${q.label}</div>`;d.onclick=()=>openPopup(i);map.appendChild(d);});const ms=document.getElementById('mapStars');for(let i=0;i<30;i++){const s=document.createElement('div');s.style.cssText=`position:absolute;width:${Math.random()*2+1}px;height:${Math.random()*2+1}px;background:#fff;border-radius:50%;left:${Math.random()*100}%;top:${Math.random()*100}%;opacity:${Math.random()*.4+.1};`;ms.appendChild(s);}}
+buildMap();
+function openPopup(i){const q=quests[i];document.getElementById('popNum').textContent=`Savol #${i+1}`;document.getElementById('popQ').textContent=q.q;document.getElementById('popA').textContent=q.a;document.getElementById('popCoin').style.display=solvedSet.has(i)?'none':'flex';document.getElementById('overlay').classList.add('open');document.getElementById('holoPopup').classList.add('open');if(!solvedSet.has(i)){solvedSet.add(i);questCoins++;addCoins(1);document.getElementById('solved-count').textContent=solvedSet.size;document.getElementById('quest-coins').textContent=questCoins;document.getElementById('hs-'+i).classList.add('solved');}}
+function closePopup(){document.getElementById('overlay').classList.remove('open');document.getElementById('holoPopup').classList.remove('open');}
+
+// ── WISH TREE ──
+const tc=document.getElementById('treeCanvas'),tctx=tc.getContext('2d');
+let wishes=[];
+const FC=['#ff69b4','#ff2d78','#ffd700','#00ff88','#00e5ff','#bf5fff','#ff8c00','#98ff78'];
+function drawTree(){tctx.clearRect(0,0,tc.width,tc.height);const bg=tctx.createLinearGradient(0,0,0,tc.height);bg.addColorStop(0,'#020818');bg.addColorStop(1,'#050e2a');tctx.fillStyle=bg;tctx.fillRect(0,0,tc.width,tc.height);tctx.lineCap='round';drawBranch(tctx,tc.width/2,tc.height,Math.PI/2,120,10);wishes.forEach(w=>drawFlower(tctx,w.x,w.y,w.color,w.size,w.opacity));}
+function drawBranch(ctx,x,y,angle,len,w){if(len<8||w<1)return;const nx=x-Math.cos(angle)*len,ny=y-Math.sin(angle)*len;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(nx,ny);const g=ctx.createLinearGradient(x,y,nx,ny);const b=Math.max(.2,len/120);g.addColorStop(0,`rgba(80,50,20,${b})`);g.addColorStop(1,`rgba(50,80,20,${b*.7})`);ctx.strokeStyle=g;ctx.lineWidth=w;ctx.stroke();drawBranch(ctx,nx,ny,angle-.4,len*.7,w*.65);drawBranch(ctx,nx,ny,angle+.4,len*.7,w*.65);if(Math.random()<.3)drawBranch(ctx,nx,ny,angle,len*.5,w*.4);}
+function drawFlower(ctx,x,y,color,size,opacity){ctx.save();ctx.globalAlpha=opacity;for(let p=0;p<6;p++){ctx.beginPath();const a=(p/6)*Math.PI*2;ctx.arc(x+Math.cos(a)*size,y+Math.sin(a)*size,size*.6,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();}ctx.beginPath();ctx.arc(x,y,size*.7,0,Math.PI*2);ctx.fillStyle='#ffd700';ctx.fill();ctx.restore();}
+const bEnds=[];(function ce(x,y,angle,len,d){if(d>4||len<12)return;const nx=x-Math.cos(angle)*len,ny=y-Math.sin(angle)*len;if(d>=3)bEnds.push({x:nx,y:ny});ce(nx,ny,angle-.4,len*.7,d+1);ce(nx,ny,angle+.4,len*.7,d+1);})(tc.width/2,tc.height,Math.PI/2,120,0);
+drawTree();
+function addWish(){const inp=document.getElementById('wishInput'),val=inp.value.trim();if(!val)return;const pos=bEnds[~~(Math.random()*bEnds.length)]||{x:tc.width/2,y:tc.height/2};const w={x:pos.x+(Math.random()-.5)*30,y:pos.y+(Math.random()-.5)*20,color:FC[~~(Math.random()*FC.length)],size:6+Math.random()*8,opacity:0};wishes.push(w);(function fade(){if(w.opacity<1){w.opacity=Math.min(1,w.opacity+.06);drawTree();requestAnimationFrame(fade);}})();const tag=document.createElement('div');tag.className='wish-tag';tag.innerHTML=['🌸','🌺','🌷','🌼','💫','✨','🍃','🌿'][~~(Math.random()*8)]+val;document.getElementById('wishTags').prepend(tag);document.getElementById('wishCount').textContent=`${wishes.length} ta niyat qo'shildi`;inp.value='';addCoins(1);}
+document.getElementById('wishInput').addEventListener('keydown',e=>{if(e.key==='Enter')addWish();});
+
+// ═══ GAMES ═══
+let gameScore=0;
+function openGame(type){
+  gameScore=0;
+  document.getElementById('gameOverlay').classList.add('open');
+  document.getElementById('gameModal').classList.add('open');
+  document.getElementById('gmScore').textContent='0';
+  if(type==='riddle')startRiddle();
+  else if(type==='sozlama')startSozlama();
+  else if(type==='memory')startMemory();
+}
+function closeGame(){document.getElementById('gameOverlay').classList.remove('open');document.getElementById('gameModal').classList.remove('open');document.getElementById('gmBody').innerHTML='';}
+function addGS(n){gameScore+=n;document.getElementById('gmScore').textContent=gameScore;addCoins(n);}
+
+// TOPISHMOQ
+const riddles=[
+  {q:"Erdan chiqqan, ko'kka o'sgan, Navro'z belgisi bo'lgan. Bu nima?",a:"Sabza",opts:["Sabza","Sumalak","Varrak","Do'ppi"]},
+  {q:"Qozoncha to'la, bir yilda bir marta pishadi, barakali taom. Bu nima?",a:"Sumalak",opts:["Palov","Sumalak","Non","Sho'rva"]},
+  {q:"Bahorni xushxabar qiladi, osmonda uchadi, ip bilan tutiladi. Bu nima?",a:"Varrak",opts:["Kapalak","Varrak","Lochin","Qushcha"]},
+  {q:"Qishda uxladi, bahorda turdi, yashil libos kiydi. Bu nima?",a:"Daraxt",opts:["Daraxt","Tosh","Bulut","Suv"]},
+  {q:"Navro'zda kiyiladi, rangli ipakdan to'qilgan. Bu nima?",a:"Chopon",opts:["Chopon","Ko'ylak","Shim","Belbog"]},
+  {q:"21-mart kuni keladi, tabiatni uyg'otadi. Bu nima?",a:"Navro'z",opts:["Navro'z","Eid","Yangi yil","Ramazon"]},
+  {q:"Boshga kiygiziladi, milliy naqshlar bilan bezatilgan. Bu nima?",a:"Do'ppi",opts:["Shlyapa","Do'ppi","Duppi","Belbog"]},
+  {q:"Bir dunyo bor, devori yo'q, eshigi yo'q. Bu nima?",a:"Tuxum",opts:["Tuxum","Uy","Bog'","Kema"]},
+  {q:"Ipak matoda to'qilgan, ko'p rangli. Navro'z kiyimi. Bu nima?",a:"Atlas",opts:["Atlas","Shoyim","Jun","Paxta"]},
+  {q:"Ko'klamda gullaydi, qizil, bahordagi birinchi gul. Bu nima?",a:"Lola",opts:["Lola","Atirgul","Nargiz","Bodom"]},
+];
+let riddleUsed=[];
+function startRiddle(){document.getElementById('gmTitle').textContent='🧩 Navro\'z Topishmoqlari';riddleUsed=[];showRiddle();}
+function showRiddle(){
+  const avail=riddles.filter((_,i)=>!riddleUsed.includes(i));
+  if(!avail.length)riddleUsed=[];
+  const pool=riddles.filter((_,i)=>!riddleUsed.includes(i));
+  const r=pool[~~(Math.random()*pool.length)];
+  riddleUsed.push(riddles.indexOf(r));
+  const opts=[...r.opts].sort(()=>Math.random()-.5);
+  document.getElementById('gmBody').innerHTML=`
+    <div class="riddle-progress">Jami: ${riddleUsed.length} savol · <span style="color:var(--neon-gold)">+2 tanga to'g'ri javob</span></div>
+    <div class="riddle-box">
+      <div class="riddle-q">${r.q}</div>
+      <div class="riddle-opts">${opts.map(o=>`<div class="riddle-opt" onclick="checkRiddle(this,'${o}','${r.a}')">${o}</div>`).join('')}</div>
+    </div>
+    <div class="riddle-result" id="rRes" style="text-align:center;font-size:15px;min-height:28px;margin-top:10px;"></div>
+    <div style="text-align:center;margin-top:16px;"><button class="btn-primary" id="nextRB" style="display:none" onclick="showRiddle()">Keyingi <i class="fa fa-arrow-right"></i></button></div>`;
+}
+function checkRiddle(el,chosen,correct){
+  document.querySelectorAll('.riddle-opt').forEach(o=>o.classList.add('disabled'));
+  if(chosen===correct){el.classList.add('correct');document.getElementById('rRes').innerHTML='<span style="color:var(--neon-green)">✓ To\'g\'ri! +2 tanga 🎉</span>';addGS(2);}
+  else{el.classList.add('wrong');document.querySelectorAll('.riddle-opt').forEach(o=>{if(o.textContent===correct)o.classList.add('correct');});document.getElementById('rRes').innerHTML=`<span style="color:var(--neon-pink)">✗ To'g'ri: ${correct}</span>`;}
+  document.getElementById('nextRB').style.display='inline-flex';
+}
+
+// SO'Z ARALASH
+const WORDS=[{w:"NAVROZ",cat:"🌸 Bayram",hint:"Bahor bayrami"},{w:"SUMALAK",cat:"🫕 Taom",hint:"Navro'z taomi"},{w:"VARRAK",cat:"🪁 O'yin",hint:"Osmonda uchadi"},{w:"SABZA",cat:"🌱 O'simlik",hint:"Yashil maysalar"},{w:"BAHOR",cat:"🌷 Fasl",hint:"Qish ortida"},{w:"ATLAS",cat:"🎨 Mato",hint:"Ipak mato turi"},{w:"LOLA",cat:"🌷 Gul",hint:"Qizil bahor guli"},{w:"NAVDIM",cat:"💧 Tabiat",hint:"Bahor yomg'iri"}];
+let sozWords=[],sozIdx=0,sozLives=3,sozTimer=null,sozTimeLeft=30;
+function startSozlama(){document.getElementById('gmTitle').textContent="🔤 So'z Aralash";sozWords=[...WORDS].sort(()=>Math.random()-.5);sozIdx=0;sozLives=3;showSoz();}
+function scramble(w){let a=w.split('');for(let i=a.length-1;i>0;i--){const j=~~(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a.join('');}
+function showSoz(){
+  if(sozIdx>=sozWords.length){document.getElementById('gmBody').innerHTML=`<div style="text-align:center;padding:30px"><div style="font-size:48px;margin-bottom:16px">🏆</div><div style="font-family:'Orbitron';font-size:22px;color:var(--neon-gold)">Tabriklaymiz!</div><div style="color:rgba(255,255,255,.5);margin-top:8px">Barcha so'zlar topildi!</div><button class="btn-primary" style="margin-top:20px" onclick="startSozlama()">Qayta o'ynash</button></div>`;return;}
+  const item=sozWords[sozIdx];let sc=scramble(item.w);while(sc===item.w&&item.w.length>2)sc=scramble(item.w);
+  sozTimeLeft=30;clearInterval(sozTimer);
+  document.getElementById('gmBody').innerHTML=`
+    <div style="text-align:center"><span style="background:rgba(191,95,255,.12);border:1px solid rgba(191,95,255,.25);border-radius:20px;padding:4px 14px;font-size:12px;color:var(--neon-violet)">${item.cat}</span></div>
+    <div class="lives-row" style="margin-top:12px">${'❤️'.repeat(sozLives)}${'🖤'.repeat(3-sozLives)}</div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:rgba(255,255,255,.4);margin-bottom:6px"><span>So'z: ${sozIdx+1}/${sozWords.length}</span><span id="sozTimer" style="color:var(--neon-cyan);font-family:'Orbitron'">⏱ ${sozTimeLeft}s</span></div>
+    <div class="sozlama-word">${sc}</div>
+    <div style="font-size:13px;color:rgba(255,255,255,.4);text-align:center;margin-bottom:18px">Maslahat: ${item.hint}</div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <input class="neon-input" id="sozAns" placeholder="Javob..." style="max-width:220px;text-transform:uppercase" maxlength="15"/>
+      <button class="btn-primary" onclick="checkSoz('${item.w}')">Tekshir</button>
+    </div>
+    <div class="sozlama-result" id="sozRes"></div>`;
+  document.getElementById('sozAns').focus();
+  document.getElementById('sozAns').addEventListener('keydown',e=>{if(e.key==='Enter')checkSoz(item.w);});
+  sozTimer=setInterval(()=>{sozTimeLeft--;const el=document.getElementById('sozTimer');if(el)el.textContent='⏱ '+sozTimeLeft+'s';if(sozTimeLeft<=0){clearInterval(sozTimer);checkSoz(item.w,true);}},1000);
+}
+function checkSoz(correct,timeout=false){
+  clearInterval(sozTimer);
+  const ans=(document.getElementById('sozAns')?.value||'').trim().toUpperCase();
+  const res=document.getElementById('sozRes');
+  if(!timeout&&ans===correct.toUpperCase()){res.innerHTML=`<span style="color:var(--neon-green)">✓ To'g'ri! +3 tanga 🎉</span>`;addGS(3);setTimeout(()=>{sozIdx++;showSoz();},900);}
+  else{sozLives--;if(sozLives<=0){res.innerHTML=`<span style="color:var(--neon-pink)">✗ To'g'ri: ${correct} — O'yin tugadi!</span>`;setTimeout(()=>{sozIdx=0;sozLives=3;showSoz();},1600);}else{res.innerHTML=`<span style="color:var(--neon-pink)">✗ Noto'g'ri. ${sozLives} urinish.</span>`;setTimeout(()=>showSoz(),1200);}}
+}
+
+// MEMORY
+const MEMOJI=['🌸','🌸','🌺','🌺','🌷','🌷','🌼','🌼','🌱','🌱','🌿','🌿','🏵️','🏵️','🎋','🎋'];
+let memCards=[],memFlipped=[],memMatched=0,memMoves=0,memLock=false,memStart=null,memTI=null;
+function startMemory(){
+  document.getElementById('gmTitle').textContent='🌸 Navro\'z Memory';
+  memCards=[...MEMOJI].sort(()=>Math.random()-.5);
+  memFlipped=[];memMatched=0;memMoves=0;memLock=false;memStart=Date.now();
+  clearInterval(memTI);renderMemory();
+  memTI=setInterval(()=>{const el=document.getElementById('memTime');if(el)el.textContent=~~((Date.now()-memStart)/1000)+'s';},1000);
+}
+function renderMemory(){
+  document.getElementById('gmBody').innerHTML=`
+    <div class="mem-stats">
+      <div class="mem-stat"><div class="mem-stat-num" id="memMoves">0</div><div class="mem-stat-label">HARAKAT</div></div>
+      <div class="mem-stat"><div class="mem-stat-num" id="memTime">0s</div><div class="mem-stat-label">VAQT</div></div>
+      <div class="mem-stat"><div class="mem-stat-num" id="memPairs">0/8</div><div class="mem-stat-label">JUFTLAR</div></div>
+    </div>
+    <div class="memory-grid">${memCards.map((e,i)=>`<div class="mem-card" id="mc${i}" onclick="flipCard(${i})"><span class="mem-card-inner">${e}</span></div>`).join('')}</div>`;
+}
+function flipCard(i){
+  if(memLock)return;const card=document.getElementById('mc'+i);
+  if(!card||card.classList.contains('flipped')||card.classList.contains('matched'))return;
+  card.classList.add('flipped');memFlipped.push(i);
+  if(memFlipped.length===2){
+    memMoves++;document.getElementById('memMoves').textContent=memMoves;memLock=true;
+    const[a,b]=memFlipped;
+    if(memCards[a]===memCards[b]){
+      setTimeout(()=>{document.getElementById('mc'+a).classList.add('matched');document.getElementById('mc'+b).classList.add('matched');memMatched++;document.getElementById('memPairs').textContent=memMatched+'/8';memFlipped=[];memLock=false;addGS(2);
+        if(memMatched===8){clearInterval(memTI);const t=~~((Date.now()-memStart)/1000);setTimeout(()=>{document.getElementById('gmBody').innerHTML=`<div style="text-align:center;padding:30px"><div style="font-size:52px;margin-bottom:16px">🏆</div><div style="font-family:'Orbitron';font-size:20px;color:var(--neon-gold)">Barcha juftlar!</div><div style="color:rgba(255,255,255,.5);margin-top:8px">${memMoves} harakat · ${t}s · +${gameScore} tanga</div><button class="btn-primary" style="margin-top:20px" onclick="startMemory()">Qayta</button></div>`;},500);}
+      },400);
+    }else{setTimeout(()=>{document.getElementById('mc'+a).classList.remove('flipped');document.getElementById('mc'+b).classList.remove('flipped');memFlipped=[];memLock=false;},850);}
+  }
+}
+
+// SCROLL REVEAL
+const ro=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)';}}),{threshold:.08});
+document.querySelectorAll('.glass,.game-card').forEach(el=>{el.style.opacity='0';el.style.transform='translateY(24px)';el.style.transition='opacity .6s ease,transform .6s ease';ro.observe(el);});
+</script>
+</body>
+</html>
